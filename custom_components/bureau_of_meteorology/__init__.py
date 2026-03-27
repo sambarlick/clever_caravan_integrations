@@ -64,7 +64,7 @@ async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry):
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up BOM from a config entry."""
-    collector = Collector(entry.data[CONF_LATITUDE], entry.data[CONF_LONGITUDE])
+    collector = Collector(entry.data[CONF_LATITUDE], entry.data[CONF_LONGITUDE], hass=hass)
 
     try:
         await collector.async_update()
