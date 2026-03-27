@@ -24,18 +24,20 @@ MAX_CACHE_AGE = 86400  # 24 hours in seconds
 
 class Collector:
     """Collector for PyBoM."""
-
-    def __init__(self, latitude, longitude):
-        """Init collector."""
-        self.locations_data = None
-        self.observations_data = None
-        self.daily_forecasts_data = None
-        self.hourly_forecasts_data = None
-        self.warnings_data = None
-        self.geohash7 = geohash_encode(latitude, longitude)
-        self.geohash6 = self.geohash7[:6]
-        # Cache storage with timestamps
-        self._cache = {
+    
+def __init__(self, latitude, longitude, hass=None):
+    """Init collector."""
+    self.hass = hass
+    self.locations_data = None
+    self.observations_data = None
+    self.daily_forecasts_data = None
+    self.hourly_forecasts_data = None
+    self.warnings_data = None
+    self.geohash7 = geohash_encode(latitude, longitude)
+    self.geohash6 = self.geohash7[:6]
+    self._last_known_location = (latitude, longitude)
+    # Cache storage with timestamps
+    self._cache = {
             "locations": {"data": None, "timestamp": 0},
             "observations": {"data": None, "timestamp": 0},
             "daily_forecasts": {"data": None, "timestamp": 0},
@@ -165,13 +167,48 @@ class Collector:
             else:
                 d["rain_amount_range"] = f"{d['rain_amount_min']} to {d['rain_amount_max']}"
 
-    @Throttle(datetime.timedelta(minutes=5))
-    async def async_update(self):
-        """Refresh the data on the collector object."""
-        headers = {"User-Agent": "MakeThisAPIOpenSource/1.0.0"}
-        
-        try:
-            async with aiohttp.ClientSession(headers=headers) as session:
+    async def _update_geohash_if_needed(self):
+    """Re-derive geohash from the current home zone location if it has changed."""
+    if self.hass is None:
+        return
+
+    home_zone = self.hass.states.get("zone.home")
+    if home_zone is None:
+        _LOGGER.warning("BOM: zone.home not found, keeping existing geohash")
+        return
+
+    lat = home_zone.attributes.get("latitude")
+    lon = home_zone.attributes.get("longitude")
+
+    if lat is None or lon is None:
+        _LOGGER.warning("BOM: zone.home has no lat/lon attributes, keeping existing geohash")
+        return
+
+    if (lat, lon) == self._last_known_location:
+        return  # Location unchanged, nothing to do
+
+    _LOGGER.debug(
+        "BOM: Home zone moved to %s,%s — updating geohash", lat, lon
+    )
+    self.geohash7 = geohash_encode(lat, lon)
+    self.geohash6 = self.geohash7[:6]
+    self._last_known_location = (lat, lon)
+    # Clear locations_data so the location name refreshes for the new position
+    self.locations_data = None
+    _LOGGER.info(
+        "BOM: Geohash updated to %s for new home zone location", self.geohash6
+    )
+
+
+@Throttle(datetime.timedelta(minutes=5))
+async def async_update(self):
+    """Refresh the data on the collector object."""
+    await self._update_geohash_if_needed()
+
+    headers = {"User-Agent": "MakeThisAPIOpenSource/1.0.0"}
+    
+    try:
+        async with aiohttp.ClientSession(headers=headers) as session:
                 # Get location data if not already available
                 if self.locations_data is None:
                     data = await self._fetch_with_retry(
