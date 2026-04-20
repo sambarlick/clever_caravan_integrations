@@ -1,5 +1,4 @@
 """The BOM integration."""
-import asyncio
 import datetime
 import logging
 
@@ -130,11 +129,9 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
 
     # if warnings are enabled, keep the warnings sensor
     if entry.options.get(CONF_WARNINGS_CREATE) is True:
-        basename = entry.options.get(CONF_WARNINGS_BASENAME)
-        if basename is None:
-            basename = entry.options.get(CONF_FORECASTS_BASENAME)
-            if basename:
-                entities_to_keep.append(f"sensor.{str(basename).lower()}_warnings")
+        basename = entry.options.get(CONF_WARNINGS_BASENAME) or entry.options.get(CONF_FORECASTS_BASENAME)
+        if basename:
+            entities_to_keep.append(f"sensor.{str(basename).lower()}_warnings")
 
     # if the weather entity basename has not changed, keep the weather entities
     weather_name = entry.options.get(
