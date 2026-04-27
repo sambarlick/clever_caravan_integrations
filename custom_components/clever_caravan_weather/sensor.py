@@ -41,6 +41,7 @@ from .const import (
     OBSERVATION_SENSOR_TYPES,
     FORECAST_SENSOR_TYPES,
     WARNING_SENSOR_TYPES,
+    STATION_SENSOR_TYPES
     ATTR_API_NON_NOW_LABEL,
     ATTR_API_NON_TEMP_NOW,
     ATTR_API_NOW_LATER_LABEL,
@@ -69,6 +70,18 @@ async def async_setup_entry(
     create_warnings = config_entry.options.get(
         CONF_WARNINGS_CREATE, config_entry.data.get(CONF_WARNINGS_CREATE)
     )
+
+    # Station debug sensors — always created when observations are enabled.
+    if create_observations is True:
+        for description in STATION_SENSOR_TYPES:
+            new_entities.append(
+                StationSensor(
+                    hass_data,
+                    observation_basename,
+                    description.key,
+                    description,
+                )
+            )
 
     if create_observations is True:
         observation_basename = config_entry.options.get(
@@ -246,17 +259,17 @@ class ObservationSensor(SensorBase):
         # Only proceed for max_temp or min_temp
         if self.sensor_name not in ("max_temp", "min_temp"):
             return attr
-    
+
         # Get data safely
         data = self.collector.observations_data.get("data")
         if not data:
             return attr
-    
+
         # Get sensor data safely
         sensor_data = data.get(self.sensor_name)
         if not sensor_data:
             return attr
-    
+
         # Get time safely
         time_str = sensor_data.get("time")
         if not time_str:
@@ -419,6 +432,34 @@ class WarningsSensor(SensorBase):
         """Return the name of the sensor."""
         return f"{self.location_name} {self.sensor_name.replace('_', ' ').title()}"
 
+class StationSensor(SensorBase):
+    """Diagnostic sensor exposing the BOM observation station serving this location."""
+
+    @property
+    def unique_id(self):
+        return f"{self.location_name}_{self.sensor_name}"
+
+    @property
+    def state(self):
+        station = self.collector.observations_data["data"]["station"]
+        if self.sensor_name == "station":
+            return station.get("name")
+        if self.sensor_name == "station_distance":
+            distance_m = station.get("distance")
+            if distance_m is None:
+                return None
+            return round(distance_m / 1000, 1)
+        return None
+
+    @property
+    def extra_state_attributes(self):
+        attr = dict(self.collector.observations_data["data"]["station"])
+        attr[ATTR_ATTRIBUTION] = ATTRIBUTION
+        return attr
+
+    @property
+    def name(self):
+        return f"{self.location_name} {self.sensor_name.replace('_', ' ').title()}"
 
 class NowLaterSensor(SensorBase):
     """Representation of a BOM Forecast Sensor."""

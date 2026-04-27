@@ -294,6 +294,21 @@ FORECAST_SENSOR_TYPES: tuple[SensorEntityDescription, ...] = (
     ),
 )
 
+STATION_SENSOR_TYPES: tuple[SensorEntityDescription, ...] = (
+    SensorEntityDescription(
+        key="station",
+        name="Station",
+    ),
+    SensorEntityDescription(
+        key="station_distance",
+        name="Station Distance",
+        native_unit_of_measurement="km",
+        device_class=SensorDeviceClass.DISTANCE,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=1,
+    ),
+)
+
 WARNING_SENSOR_TYPES: tuple[SensorEntityDescription, ...] = (
     SensorEntityDescription(
         key=ATTR_API_WARNINGS,
