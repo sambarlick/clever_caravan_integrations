@@ -1,8 +1,8 @@
 # 🚐 Clever Caravan Weather
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg?style=for-the-badge)](https://github.com/custom-components/hacs)
-[![GitHub Release](https://img.shields.io/github/release/sambarlick/clever_caravan_integrations.svg?style=for-the-badge)](https://github.com/sambarlick/clever_caravan_integrations/releases)
-[![License](https://img.shields.io/github/license/sambarlick/clever_caravan_integrations.svg?style=for-the-badge)](https://github.com/sambarlick/clever_caravan_integrations/blob/main/LICENSE)
+[![GitHub Release](https://img.shields.io/github/release/sambarlick/clever_caravan_weather.svg?style=for-the-badge)](https://github.com/sambarlick/clever_caravan_weather/releases)
+[![License](https://img.shields.io/github/license/sambarlick/clever_caravan_weather.svg?style=for-the-badge)](https://github.com/sambarlick/clever_caravan_weather/blob/main/LICENSE)
 ![Maintenance](https://img.shields.io/maintenance/yes/2026?style=for-the-badge)
 
 A Home Assistant integration that pulls weather data from the [Australian Bureau of Meteorology (BOM)](http://www.bom.gov.au) for your **current** Home Zone location — built for caravan travellers who move around Australia.
@@ -29,7 +29,7 @@ This integration is a fork of the excellent [bureau_of_meteorology](https://gith
 
 1. Open **HACS** in Home Assistant.
 2. Click the three dots in the top right corner and select **Custom repositories**.
-3. Add your repository URL: `https://github.com/sambarlick/clever_caravan_integrations`
+3. Add your repository URL: `https://github.com/sambarlick/clever_caravan_weather`
 4. Select **Integration** as the category and click **Add**.
 5. Install **Clever Caravan Weather** from the HACS store and restart Home Assistant.
 
@@ -48,8 +48,8 @@ This integration is a fork of the excellent [bureau_of_meteorology](https://gith
 
 ## Links
 
-- **Repository:** [github.com/sambarlick/clever_caravan_integrations](https://github.com/sambarlick/clever_caravan_integrations)
-- **Issues:** [github.com/sambarlick/clever_caravan_integrations/issues](https://github.com/sambarlick/clever_caravan_integrations/issues)
+- **Repository:** [github.com/sambarlick/clever_caravan_weather](https://github.com/sambarlick/clever_caravan_weather)
+- **Issues:** [github.com/sambarlick/clever_caravan_weather/issues](https://github.com/sambarlick/clever_caravan_weather/issues)
 
 ---
 
